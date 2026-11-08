@@ -21,16 +21,10 @@ jobs:
         run: |
           unzip -o *.zip -d project || true
           PROJECT_DIR=$(find project -name "settings.gradle.kts" -exec dirname {} \; | head -n 1)
-          echo "Project in: $PROJECT_DIR"
           cd "$PROJECT_DIR"
-          echo "=== BEFORE FIX - app file ==="
-          cat app/build.gradle.kts
-          echo "=== FIXING ==="
           sed -i 's/id("com.android.application")/id("com.android.application") version "8.5.2"/g' app/build.gradle.kts
-          sed -i "s/id('com.android.application')/id('com.android.application') version '8.5.2'/g" app/build.gradle.kts
           sed -i 's/id("org.jetbrains.kotlin.android")/id("org.jetbrains.kotlin.android") version "1.9.24"/g' app/build.gradle.kts
-          sed -i "s/id('org.jetbrains.kotlin.android')/id('org.jetbrains.kotlin.android') version '1.9.24'/g" app/build.gradle.kts
-          echo "=== AFTER FIX - app file ==="
+          sed -i 's/id("org.jetbrains.kotlin.plugin.compose")/id("org.jetbrains.kotlin.plugin.compose") version "1.9.24"/g' app/build.gradle.kts
           cat app/build.gradle.kts
           gradle assembleDebug --no-daemon
       - name: Upload APK
