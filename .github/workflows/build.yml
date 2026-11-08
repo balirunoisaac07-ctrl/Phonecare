@@ -16,15 +16,34 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v3
+        uses: actions/setup-gradle@v3
       - name: Build APK
         run: |
           unzip -o *.zip -d project || true
           PROJECT_DIR=$(find project -name "settings.gradle.kts" -exec dirname {} \; | head -n 1)
           cd "$PROJECT_DIR"
+          cat > settings.gradle.kts <<'EOF'
+          pluginManagement {
+              repositories {
+                  google()
+                  mavenCentral()
+                  gradlePluginPortal()
+              }
+          }
+          dependencyResolutionManagement {
+              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+              repositories {
+                  google()
+                  mavenCentral()
+              }
+          }
+          rootProject.name = "Phonecare"
+          include(":app")
+          EOF
           sed -i 's/id("com.android.application")/id("com.android.application") version "8.5.2"/g' app/build.gradle.kts
-          sed -i 's/id("org.jetbrains.kotlin.android")/id("org.jetbrains.kotlin.android") version "1.9.24"/g' app/build.gradle.kts
-          sed -i 's/id("org.jetbrains.kotlin.plugin.compose")/id("org.jetbrains.kotlin.plugin.compose") version "1.9.24"/g' app/build.gradle.kts
+          sed -i 's/id("org.jetbrains.kotlin.android")/id("org.jetbrains.kotlin.android") version "2.0.21"/g' app/build.gradle.kts
+          sed -i 's/id("org.jetbrains.kotlin.plugin.compose")/id("org.jetbrains.kotlin.plugin.compose") version "2.0.21"/g' app/build.gradle.kts
+          sed -i 's/1.9.24/2.0.21/g' app/build.gradle.kts
           cat app/build.gradle.kts
           gradle assembleDebug --no-daemon
       - name: Upload APK
